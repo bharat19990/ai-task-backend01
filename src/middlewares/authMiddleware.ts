@@ -25,7 +25,11 @@ export const protect = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.cookies.token;
+    // Accept token from cookie (local) OR Authorization header (cross-domain / Vercel)
+    let token = req.cookies.token;
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
 
     if (!token) {
       res.status(401).json({
